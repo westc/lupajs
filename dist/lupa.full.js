@@ -13,7 +13,341 @@
     
     const callableFrame = createCallableFrame({
       jsCode() {
-        let mountedApp;const DEFAULT_PER_PAGE=25,DEFAULT_PAGINATION_LENGTH=5,DEFAULT_SEARCH_TERMS_LABEL="Search for",DEFAULT_SEARCH_TERMS_PLACEHOLDER="Enter your search terms here…",DEFAULT_SHOW_BOTTOM_SEARCH=!0,DEFAULT_ANCHOR_TARGET="_blank",DEFAULT_NO_RESULTS_MESSAGE="Sorry, no results were found.",DEFAULT_MATCH_WORD_START=!0,DEFAULT_MATCH_WORD_END=!1;function init(){const t=document.querySelector("#vueApp");mountedApp=Vue.createApp({data:()=>({records:[],settings:{},errorMessage:"",pageNumber:1,loadingMessage:"All searchable records are being loaded…",searchTerms:"",height:0}),watch:{searchTerms(t){this.pageNumber=1,setTimeout((()=>{this.searchTerms===t&&this.settings.searchTermsParam&&callParent("updateSearchTermsParam",t)}),1e3)},height(t){callParent("updateHeight",t)},settings(t){document.body.classList[t?.invertedMode?"add":"remove"]("inverted-mode")}},computed:{noResultsMessage(){return this.settings.noResultsMessage??DEFAULT_NO_RESULTS_MESSAGE},anchorTarget(){return this.settings.anchorTarget??"_blank"},showBottomSearch(){return this.settings.showBottomSearch??true},searchTermsLabel(){return this.settings.searchTermsLabel??"Search for"},searchTermsPlaceholder(){return this.settings.searchTermsPlaceholder??"Enter your search terms here…"},matchWordStart(){return this.settings.matchWordStart??true},matchWordEnd(){return this.settings.matchWordEnd??false},searcher(){return new Searcher(this.searchTerms,{matchWordStart:this.matchWordStart,matchWordEnd:this.matchWordEnd})},filteredRecords(){const{searcher:t}=this;return this.records.reduce(((e,r,s)=>{const a=t.matchAll(`${r.url??""}\n${r.title??""}\n${r.description??""}\n${r.keywords??""}`);return a.length&&e.push({record:r,index:s,score:[...new Set(a.map((t=>t[0].toUpperCase())))].reduce(((t,e)=>t+e.length+1),0),score2:a.reduce(((t,e)=>t+e[0].length),0)}),e}),[]).sort(((t,e)=>t.score===e.score?t.score2==t.score2?t.index-e.index:e.score2-t.score2:e.score-t.score)).map((({record:t})=>t))},isLoading(){return!!this.loadingMessage},perPage(){return this.settings.perPage??25},paginationLength(){return this.settings.paginationLength??5},pageRecords(){const t=this.pageRecordsStartIndex;return this.filteredRecords.slice(t,t+this.perPage)},pageRecordsStartIndex(){return(this.pageNumber-1)*this.perPage},pageCount(){return Math.ceil(this.filteredRecords.length/this.perPage)},pagination(){return paginate(this.pageNumber,this.pageCount,this.paginationLength)},title(){return this.settings.title?(document.title=`${this.settings.title} – 🔍 Lupa`,this.settings.title):document.title},description(){return this.settings.description??document.querySelector('meta[name="description"]')?.getAttribute("content")}},methods:{updateHeight(){const e=window.getComputedStyle(t);this.height=parseFloat(e.height)+parseFloat(e.marginTop)+parseFloat(e.marginBottom)}},mounted(){this.updateHeight(),["orientationchange","resize"].forEach((t=>addEventListener(t,this.updateHeight)))},updated(){this.updateHeight()}}).mount(t)}function updateSearchTerms(t){mountedApp.searchTerms=t}function paginate(t,e,r){for(var s=Math.max(1,Math.min(Math.floor(t),e)),a=s,n=[{number:s,isSelected:!0,isBoundary:1===s||a===e}],i=2*r,h=2;n.length<r&&h++<i;)h%2==0&&1<s&&(--s,n.unshift({number:s,isSelected:!1,isBoundary:1===s})),h%2==1&&a<e&&(++a,n.push({number:a,isSelected:!1,isBoundary:a===e}));return n}class Searcher{#t;#e;#r;#s;#a;#n;constructor(t,e){this.#t=t??"",e=Object(e),this.#e=!1!==e.matchWordStart,this.#r=!!e.matchWordEnd,this.#i()}#i(){this.#s=null,this.#a=null,this.#n=null;let t=[],e=[],r=[];for(let s,a=/([-+])?("([^"]*)"|\S+)/g;s=a.exec(this.#t.trim());){let a=(null==s[3]?s[2]:s[3]).replace(/^(?=([\p{L}\p{N}]))|(?<=([\p{L}\p{N}]))$|\\(.)|(\s?\*\s?)|(\s+)|[.+?^$\[\]\\{}()|]/gu,((t,e,r,a,n,i,h,o)=>{if(e)return this.#e?"(?<!\\p{L}|\\p{N})":"";if(r)return this.#r?"(?!\\p{L}|\\p{N})":"";if(i)return"\\s+";if(!n)return"\\"+(a||t);let c=s[3]?"(\\s+\\S+)*":"",d=0==h||"*"!==n.charAt(0),u=h+1===o.length||"*"!==n.slice(-1);return d?"(?:\\s|)\\S+"+c+(u?"":"(?:\\s|$)"):"\\S*"})),n=s[1];("+"!==n?"-"===n?r:t:e).push(a)}e.length+t.length===0&&t.push("^"),r.length&&(this.#s=new RegExp(r.join("|"),"iu")),e.length&&(this.#a=new RegExp(e.map((t=>`(?=^[^]*${t})`)).join(""),"iu")),this.#n=new RegExp([...t,...e].join("|"),"giu")}set matchWordStart(t){this.#e=t,this.#i()}get matchWordStart(){return this.#e}set matchWordEnd(t){this.#r=t,this.#i()}get matchWordEnd(){return this.#r}set terms(t){this.#t=t??"",this.#i()}get terms(){return this.#t}test(t){return!this.#s?.test(t)&&(!1!==this.#a?.test(t)&&this.#n.test(t))}matchAll(t){return this.#s?.test(t)||!1===this.#a?.test(t)?[]:[...t.matchAll(this.#n)]}}function setData({records:t,settings:e}){mountedApp.records=t,mountedApp.settings=e,mountedApp.loadingMessage=""}
+        let mountedApp;
+        
+        const DEFAULT_PER_PAGE = 25;
+        const DEFAULT_PAGINATION_LENGTH = 5;
+        const DEFAULT_SEARCH_TERMS_LABEL = 'Search for';
+        const DEFAULT_SEARCH_TERMS_PLACEHOLDER = 'Enter your search terms here\u2026';
+        const DEFAULT_SHOW_BOTTOM_SEARCH = true;
+        const DEFAULT_ANCHOR_TARGET = '_blank';
+        const DEFAULT_NO_RESULTS_MESSAGE = 'Sorry, no results were found.';
+        const DEFAULT_MATCH_WORD_START = true;
+        const DEFAULT_MATCH_WORD_END = false;
+        
+        function init() {
+          const vueApp = document.querySelector('#vueApp');
+        
+          mountedApp = Vue.createApp({
+            data() {
+              return {
+                records: [],
+                settings: {},
+                errorMessage: '',
+                pageNumber: 1,
+                loadingMessage: 'All searchable records are being loaded\u2026',
+                searchTerms: '',
+                height: 0,
+              };
+            },
+            watch: {
+              searchTerms(newValue) {
+                this.pageNumber = 1;
+        
+                setTimeout(() => {
+                  if (this.searchTerms === newValue && this.settings.searchTermsParam) {
+                    callParent('updateSearchTermsParam', newValue);
+                  }
+                }, 1e3);
+              },
+              height(newHeight) {
+                callParent('updateHeight', newHeight);
+              },
+              settings(newSettings) {
+                document.body.classList[newSettings?.invertedMode ? 'add' : 'remove']('inverted-mode');
+              }
+            },
+            computed: {
+              noResultsMessage() {
+                return this.settings.noResultsMessage ?? DEFAULT_NO_RESULTS_MESSAGE;
+              },
+              anchorTarget() {
+                return this.settings.anchorTarget ?? DEFAULT_ANCHOR_TARGET;
+              },
+              showBottomSearch() {
+                return this.settings.showBottomSearch ?? DEFAULT_SHOW_BOTTOM_SEARCH;
+              },
+              searchTermsLabel() {
+                return this.settings.searchTermsLabel ?? DEFAULT_SEARCH_TERMS_LABEL;
+              },
+              searchTermsPlaceholder() {
+                return this.settings.searchTermsPlaceholder ?? DEFAULT_SEARCH_TERMS_PLACEHOLDER;
+              },
+              matchWordStart() {
+                return this.settings.matchWordStart ?? DEFAULT_MATCH_WORD_START;
+              },
+              matchWordEnd() {
+                return this.settings.matchWordEnd ?? DEFAULT_MATCH_WORD_END;
+              },
+              searcher() {
+                return new Searcher(this.searchTerms, {
+                  matchWordStart: this.matchWordStart,
+                  matchWordEnd: this.matchWordEnd,
+                });
+              },
+              filteredRecords() {
+                /** @type {{searcher: Searcher}} */
+                const {searcher} = this;
+        
+                const results = this.records
+                  .reduce(
+                    (records, r, index) => {
+                      const matches = searcher.matchAll(
+                        `${r.url ?? ''}\n${r.title ?? ''}\n${r.description ?? ''}\n${r.keywords ?? ''}`
+                      );
+                      if (matches.length) {
+                        records.push({
+                          record: r,
+                          index,
+                          score: [...new Set(matches.map(m => m[0].toUpperCase()))].reduce((score, s) => score + s.length + 1, 0),
+                          score2: matches.reduce((score, m) => score + m[0].length, 0),
+                        });
+                      }
+                      return records;
+                    },
+                    []
+                  )
+                  .sort(
+                    (a, b) => a.score === b.score
+                      ? a.score2 === a.score2
+                        ? a.index - b.index
+                        : (b.score2 - a.score2)
+                      : (b.score - a.score)
+                  )
+                  .map(({record}) => (record));
+                return results;
+              },
+              isLoading() {
+                return !!this.loadingMessage;
+              },
+              perPage() {
+                return this.settings.perPage ?? DEFAULT_PER_PAGE;
+              },
+              paginationLength() {
+                return this.settings.paginationLength ?? DEFAULT_PAGINATION_LENGTH;
+              },
+              pageRecords() {
+                const startIndex = this.pageRecordsStartIndex;
+                return this.filteredRecords.slice(startIndex, startIndex + this.perPage);
+              },
+              pageRecordsStartIndex() {
+                return (this.pageNumber - 1) * this.perPage;
+              },
+              pageCount() {
+                return Math.ceil(this.filteredRecords.length / this.perPage);
+              },
+              pagination() {
+                return paginate(this.pageNumber, this.pageCount, this.paginationLength);
+              },
+              title() {
+                if (this.settings.title) {
+                  document.title = `${this.settings.title} \u2013 \u{1F50D} Lupa`;
+                  return this.settings.title;
+                }
+                return document.title;
+              },
+              description() {
+                return this.settings.description
+                  ?? document.querySelector('meta[name="description"]')?.getAttribute('content');
+              }
+            },
+            methods: {
+              updateHeight() {
+                const style = window.getComputedStyle(vueApp);
+                this.height = parseFloat(style.height)
+                  + parseFloat(style.marginTop)
+                  + parseFloat(style.marginBottom);
+              }
+            },
+            mounted() {
+              this.updateHeight();
+              ['orientationchange', 'resize'].forEach(n => addEventListener(n, this.updateHeight));
+            },
+            updated() {
+              this.updateHeight();
+            }
+          }).mount(vueApp);
+        }
+        
+        function updateSearchTerms(searchTerms) {
+          mountedApp.searchTerms = searchTerms;
+        }
+        
+        /**
+         * @param {number} page
+         *   Selected page number.
+         * @param {number} pageCount
+         *   Number of total pages.
+         * @param {number} paginationLength
+         *   Number of page numbers to show in the pagination container.
+         * @returns {{number: number, isSelected: boolean, isBoundary: boolean}[]}
+         *   An array of the pagination numbers to show.
+         */
+        function paginate(page, pageCount, paginationLength) {
+          var minPage = Math.max(1, Math.min(Math.floor(page), pageCount));
+          var maxPage = minPage;
+          var pagination = [{
+            number: minPage,
+            isSelected: true,
+            isBoundary: minPage === 1 || maxPage === pageCount
+          }];
+          var maxIter = paginationLength * 2;
+          for (var iter = 2; pagination.length < paginationLength && iter++ < maxIter; ) {
+            if (iter % 2 === 0 && 1 < minPage) {
+              --minPage;
+              pagination.unshift({
+                number: minPage,
+                isSelected: false,
+                isBoundary: minPage === 1
+              });
+            }
+            if (iter % 2 === 1 && maxPage < pageCount) {
+              ++maxPage;
+              pagination.push({
+                number: maxPage,
+                isSelected: false,
+                isBoundary: maxPage === pageCount
+              });
+            }
+          }
+          return pagination;
+        }
+        
+        class Searcher {
+          /** @type {string} */
+          #terms;
+          /** @type {boolean} */
+          #matchWordStart;
+          /** @type {boolean} */
+          #matchWordEnd;
+          /** @type {RegExp} */
+          #rgxFullNeg;
+          /** @type {RegExp} */
+          #rgxFullPos;
+          /** @type {RegExp} */
+          #rgxPartial;
+        
+          /**
+           * @param {string} terms
+           * @param {object} options
+           * @param {?boolean=} options.matchWordStart
+           *   Optional.  Defaults to `true`.
+           * @param {?boolean=} options.matchWordEnd
+           *   Optional.  Defaults to `false`.
+           */
+          constructor(terms, options) {
+            this.#terms = terms ?? '';
+            options = Object(options);
+            this.#matchWordStart = options.matchWordStart !== false;
+            this.#matchWordEnd = !!options.matchWordEnd;
+            this.#updateRegExps();
+          }
+        
+          #updateRegExps() {
+            this.#rgxFullNeg = null;
+            this.#rgxFullPos = null;
+            this.#rgxPartial = null;
+        
+            let nonModdedTargets = [];
+            let plusTargets = [];
+            let minusTargets = [];
+        
+            for (let match, rgx = /([-+])?("([^"]*)"|\S+)/g; match = rgx.exec(this.#terms.trim()); ) {
+              let target = (match[3] == null ? match[2] : match[3]).replace(
+                /^(?=([\p{L}\p{N}]))|(?<=([\p{L}\p{N}]))$|\\(.)|(\s?\*\s?)|(\s+)|[.+?^$\[\]\\{}()|]/gu,
+                (m, startWithWord, endsWithWord, escapedChar, asterisk, whitespace, index, target) => {
+                  if (startWithWord) {
+                    return this.#matchWordStart ? '(?<!\\p{L}|\\p{N})' : '';
+                  }
+                  if (endsWithWord) {
+                    return this.#matchWordEnd ? '(?!\\p{L}|\\p{N})' : '';
+                  }
+                  if (whitespace) {
+                    return '\\s+';
+                  }
+                  if (!asterisk) {
+                    return '\\' + (escapedChar || m);
+                  }
+                  let multipleMod = match[3] ? '(\\s+\\S+)*' : '';
+                  let isStarter = index == 0 || asterisk.charAt(0) !== '*';
+                  let isFinisher = index + 1 === target.length || asterisk.slice(-1) !== '*';
+                  return isStarter
+                    ? '(?:\\s|)\\S+' + multipleMod + (isFinisher ? '' : '(?:\\s|$)')
+                    : '\\S*';
+                }
+              );
+              let mod = match[1];
+              (mod !== '+' ? mod === '-' ? minusTargets : nonModdedTargets : plusTargets).push(target);
+            }
+        
+            if (plusTargets.length + nonModdedTargets.length === 0) {
+              nonModdedTargets.push('^');
+            }
+        
+            if (minusTargets.length) {
+              this.#rgxFullNeg = new RegExp(minusTargets.join('|'), 'iu');
+            }
+        
+            if (plusTargets.length) {
+              this.#rgxFullPos = new RegExp(plusTargets.map(t => `(?=^[^]*${t})`).join(''), 'iu');
+            }
+        
+            this.#rgxPartial = new RegExp([...nonModdedTargets, ...plusTargets].join('|'), 'giu');
+          }
+        
+          set matchWordStart(matchWordStart) {
+            this.#matchWordStart = matchWordStart;
+            this.#updateRegExps();
+          }
+          get matchWordStart() {
+            return this.#matchWordStart;
+          }
+        
+          set matchWordEnd(matchWordEnd) {
+            this.#matchWordEnd = matchWordEnd;
+            this.#updateRegExps();
+          }
+          get matchWordEnd() {
+            return this.#matchWordEnd;
+          }
+        
+          set terms(terms) {
+            this.#terms = terms ?? '';
+            this.#updateRegExps();
+          }
+          get terms() {
+            return this.#terms;
+          }
+        
+          /**
+           * @param {string} value
+           * @returns {boolean}
+           */
+          test(value) {
+            return this.#rgxFullNeg?.test(value)
+              ? false
+              : this.#rgxFullPos?.test(value) === false
+                ? false
+                : this.#rgxPartial.test(value);
+          }
+        
+          /**
+           * @param {string} value
+           * @returns {RegExpMatchArray[]}
+           */
+          matchAll(value) {
+            return (!this.#rgxFullNeg?.test(value) && this.#rgxFullPos?.test(value) !== false)
+              ? [...value.matchAll(this.#rgxPartial)]
+              : [];
+          }
+        }
+        
+        function setData({records, settings}) {
+          mountedApp.records = records;
+          mountedApp.settings = settings;
+          mountedApp.loadingMessage = '';
+        }
+        
       },
       jsUrls: [
         'https://unpkg.com/vue@3/dist/vue.global.prod.js',
