@@ -14,38 +14,37 @@ const dirDest = 'dist';
 const jsDest = `${dirDest}/lupa.js`;
 
 // Define a task to transpile and minify JavaScript
-gulp.task('build-js', gulp.series(
-  function (done) {
-    // Read the content of the HTML file
-    const cssContent = new CleanCSS().minify(fs.readFileSync(cssSrc, 'utf8')).styles;
-    const htmlContent = htmlMinifier.minify(fs.readFileSync(htmlSrc, 'utf8'), {
-      collapseWhitespace: true,
-      removeComments: false,
-    });
-    
-    // Replace EXTERNAL_HTML_FILE with the HTML content
-    gulp.src(jsSrc)
-      .pipe(replace('EXTERNAL_CSS_FILE_FROM_GULP', JSON.stringify(cssContent)))
-      .pipe(replace('EXTERNAL_HTML_FILE_FROM_GULP', JSON.stringify(htmlContent)))
-      .pipe(gulp.dest(dirDest));
-    done();
-  },
-  function (done) {
-    gulp.src(jsDest)
-      .pipe(babel())
-      .pipe(uglify({
-        compress: { unused: false },
-        mangle: false
-      }))
-      .pipe(rename({ suffix: '.min' }))
-      .pipe(gulp.dest(dirDest));
-    done();
-  }
-));
+function buildJs() {
+  // Read the content of the HTML file
+  const cssContent = new CleanCSS().minify(fs.readFileSync(cssSrc, 'utf8')).styles;
+  const htmlContent = htmlMinifier.minify(fs.readFileSync(htmlSrc, 'utf8'), {
+    collapseWhitespace: true,
+    removeComments: false,
+  });
+
+  // Replace EXTERNAL_HTML_FILE with the HTML content
+  return gulp.src(jsSrc)
+    .pipe(replace('EXTERNAL_CSS_FILE_FROM_GULP', JSON.stringify(cssContent)))
+    .pipe(replace('EXTERNAL_HTML_FILE_FROM_GULP', JSON.stringify(htmlContent)))
+    .pipe(gulp.dest(dirDest));
+}
+
+gulp.task('build-js', buildJs);
+
+gulp.task('minify-js', gulp.series('build-js', function() {
+  return gulp.src(jsDest)
+    .pipe(babel())
+    .pipe(uglify({
+      compress: { unused: false },
+      mangle: false
+    }))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest(dirDest));
+}));
 
 // Watch for changes and run the build-js task
 gulp.task('watch', function () {
-  gulp.watch([cssSrc, htmlSrc, jsSrc], gulp.series('build-js'));
+  gulp.watch([cssSrc, htmlSrc, jsSrc], gulp.series('minify-js'));
 });
 
 // Default task: Run 'watch' as a default task
