@@ -1,0 +1,18 @@
+[v-cloak]{display: none;}
+body {
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+body.inverted-mode {
+  background-color: #111;
+  filter: invert(1) hue-rotate(180deg);
+}
+body,
+body.inverted-mode input,
+body.inverted-mode textarea {
+  background-color: #EEE;
+}
+body.inverted-mode .btn {
+  filter: invert(1) hue-rotate(180deg);
+}

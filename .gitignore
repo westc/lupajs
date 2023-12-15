@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+
+# Build files
+build/
+
+# Logs
+logs/
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor-specific files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+
+# Compiled binary addons (if any)
+*.node
+
+# npm package-lock.json
+package-lock.json
