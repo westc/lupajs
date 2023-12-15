@@ -29,7 +29,7 @@ const PLACEHOLDER_VALUES = {};
 
 function getReplacer(useJsIframeMin=false) {
   return replace(
-    /((?<=^|\r|\n)(?:(?!\r|\n)\s)*|)\[\[(\w+)_FILE_PLACEHOLDER\]\]/g,
+    /((?<=^|\r|\n)(?:(?!\r|\n)\s)*|)\[\[\s*(\w+)_FILE_PLACEHOLDER\s*\]\]/g,
     (_, prefix, type) => {
       const result = PLACEHOLDER_VALUES[(type === 'JS_IFRAME' && useJsIframeMin) ? 'JS_IFRAME_MIN' : type];
       return prefix ? result.replace(/^/gm, prefix) : result;
