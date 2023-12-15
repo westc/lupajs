@@ -1,6 +1,6 @@
 (() => {
-  const LUPA_CSS = [[CSS_FILE_PLACEHOLDER]];
-  const LUPA_HTML = [[HTML_FILE_PLACEHOLDER]];
+  const LUPA_CSS = [[CSS_IFRAME_FILE_PLACEHOLDER]];
+  const LUPA_HTML = [[HTML_IFRAME_FILE_PLACEHOLDER]];
 
   /**
    * Function executed when the script is included in a document.

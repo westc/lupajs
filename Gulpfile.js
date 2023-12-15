@@ -9,10 +9,10 @@ const htmlMinifier = require('html-minifier');
 const CleanCSS = require('clean-css');
 const fs = require('fs');
 
-const cssSrc = 'src/lupa.css';
-const htmlSrc = 'src/lupa.html';
-const jsSrc = 'src/lupa.js';
+const cssIframeSrc = 'src/lupa-iframe.css';
+const htmlIframeSrc = 'src/lupa-iframe.html';
 const jsIframeSrc = 'src/lupa-iframe.js';
+const jsSrc = 'src/lupa.js';
 const dirDest = 'dist';
 const jsDest = `${dirDest}/lupa.js`;
 
@@ -20,10 +20,10 @@ const babelOptions = {
   // presets: ['@babel/preset-env']
 };
 
-// Read the content of the HTML, CSS and IFRAME JS file
+// Read the content of the IFRAME JS file.
 const jsIframeContent = fs.readFileSync(jsIframeSrc, 'utf8');
 
-/** @type {{[key in ("CSS"|"HTML"|"JS_IFRAME"|"JS_IFRAME_MIN")]?: string}} */
+/** @type {{[key in ("CSS_IFRAME"|"HTML_IFRAME"|"JS_IFRAME"|"JS_IFRAME_MIN")]?: string}} */
 const PLACEHOLDER_VALUES = {};
 
 
@@ -41,7 +41,7 @@ function getReplacer(useJsIframeMin=false) {
 // Watch for changes and run the build-js task
 gulp.task('watch', function () {
   gulp.watch(
-    [cssSrc, htmlSrc, jsSrc, jsIframeSrc],
+    [cssIframeSrc, htmlIframeSrc, jsSrc, jsIframeSrc],
     gulp.series(
 
       // Define the placeholder values.
@@ -49,8 +49,8 @@ gulp.task('watch', function () {
         if (Object.keys(PLACEHOLDER_VALUES).length) return;
       
         Object.assign(PLACEHOLDER_VALUES, {
-          CSS: JSON.stringify(new CleanCSS().minify(fs.readFileSync(cssSrc, 'utf8')).styles),
-          HTML: JSON.stringify(htmlMinifier.minify(fs.readFileSync(htmlSrc, 'utf8'), {
+          CSS_IFRAME: JSON.stringify(new CleanCSS().minify(fs.readFileSync(cssIframeSrc, 'utf8')).styles),
+          HTML_IFRAME: JSON.stringify(htmlMinifier.minify(fs.readFileSync(htmlIframeSrc, 'utf8'), {
             collapseWhitespace: true,
             removeComments: false,
           })),
@@ -64,8 +64,8 @@ gulp.task('watch', function () {
       // Define a task to transpile and minify JavaScript
       async function buildMiniJS(done) {
         // Read the content of the HTML file
-        const cssContent = new CleanCSS().minify(fs.readFileSync(cssSrc, 'utf8')).styles;
-        const htmlContent = htmlMinifier.minify(fs.readFileSync(htmlSrc, 'utf8'), {
+        const cssContent = new CleanCSS().minify(fs.readFileSync(cssIframeSrc, 'utf8')).styles;
+        const htmlContent = htmlMinifier.minify(fs.readFileSync(htmlIframeSrc, 'utf8'), {
           collapseWhitespace: true,
           removeComments: false,
         });
