@@ -1,5 +1,5 @@
 {
-  "name": "lupa",
+  "name": "lupajs",
   "version": "1.0.0",
   "description": "Quickly make a simple search engine based on a Google Sheet or JSON data.",
   "scripts": {
