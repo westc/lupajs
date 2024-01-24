@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/westc/lupajs/issues"
   },
-  "homepage": "https://github.com/westc/lupajs#readme",
+  "homepage": "https://westc.github.io/lupajs/",
   "devDependencies": {
     "@babel/core": "^7.23.6",
     "@babel/preset-env": "^7.23.6",
