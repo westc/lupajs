@@ -22,16 +22,16 @@ Once you have created a Google Sheet with the aforementioned columns and you hav
 1. In the `Publish to the web` modal do the following:
 
     1. Select the sheet which contains the search engine records.
-        ![](/README-images/publish%20to%20the%20web%20-%20select%20sheet.png)
+        ![](./README-images/publish%20to%20the%20web%20-%20select%20sheet.png)
 
     1. Click the green `Publish` button.
-        ![](/README-images/publish%20to%20the%20web%20-%20green%20publish%20button.png)
+        ![](./README-images/publish%20to%20the%20web%20-%20green%20publish%20button.png)
 
     1. Confirm that you want to publish the selected sheet to the web.
-        ![](/README-images/prompt%20-%20confirm%20publishing%20sheet.png)
+        ![](./README-images/prompt%20-%20confirm%20publishing%20sheet.png)
 
     1. Copy the produced URL corresponding to your newly published sheet.
-        ![](/README-images/publish%20to%20the%20web%20-%20copy%20url%20of%20sheet.png)
+        ![](./README-images/publish%20to%20the%20web%20-%20copy%20url%20of%20sheet.png)
 
 ## Continued Development of LupaJS
 
